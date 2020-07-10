@@ -1,0 +1,16 @@
+{
+    "name": "theritesite/additional-order-costs-for-woocommerce",
+    "description": "",
+    "type": "project",
+    "keywords": [ "wordpress" ],
+    "require": {
+      "php": ">=7.0",
+      "composer/installers": "^1.0",
+      "phpunit/phpunit": "^5.0"
+    },
+    "scripts": {
+      "install-woocommerce": "tests/bin/install-woocommerce.sh 3.7.1",
+      "pre-install-cmd": "@install-woocommerce",
+      "pre-update-cmd": "@install-woocommerce"
+    }
+  }
