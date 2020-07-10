@@ -1,25 +1,30 @@
 === Additional Order Costs for WooCommerce ===
 Contributors: theritesites
 Donate link: https://www.theritesites.com
-Tags: 
+Tags: Order costs, WooCommerce costs, Additional costs, Reporting
 Requires at least: 4.0
 Tested up to: 5.3.0
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Whether it's an extra invoice, or a credit from a merchant related to an order. Sometimes you just need a couple extra cost fields for your reporting.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Whether it's an extra invoice, or a credit from a merchant related to an order. Sometimes you just need a couple extra cost fields for your reporting.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+After installing this plugin you’ll be able to manually add or adjust and label additional costs for each order on the WooCommerce Edit Order page. This starts with 5 additional cost fields that can be changed in the settings page with the plugin. 5 fields too much? Set it to 2! Not enough, set it to 9!
+In the future we will be looking at making these a repeatable field rather than a set number, but we wanted to get users thinking of other expansions as well!
+
+Once you start tracking the additional order costs you associate, you’ll want to use our [WooCommerce Net Profit](https://www.theritesites.com/plugins/woocommerce-net-profit) plugin that will give you beautiful, functional reports to fully analyze your profitability.
+This also pairs well with our other cost tracking plguin, [WooCommerce Cost of Shipping](https://wordpress.org/plugins/woo-cost-of-shipping/).
+While using the WooCommerce Net Profit plugin, you will individually be able to track Additional Costs, Cost of Shipping, and Cost of Goods. The Net Profit plugin has recently been expanded to allow for custom costs to be associated from any other third party plugin as well, though coding is necessary.
+
 
 == Installation ==
 
-1. Upload `aoc-wc.php` to the `/wp-content/plugins/` directory
+1. Upload `additional-order-costs-for-woocommerce.php` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
 
@@ -31,50 +36,12 @@ An answer to that question.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
 
 == Changelog ==
 
-= 0.1 =
-* Created a new plugin. This is a pre-release.
+= 1.0.0 =
+
+* Initial release
 
 
 == Upgrade Notice ==
-
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
