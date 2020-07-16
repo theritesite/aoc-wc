@@ -13,7 +13,6 @@
  */
 class AOC_WC_i18n {
 
-
 	/**
 	 * Load the plugin text domain for translation.
 	 *
@@ -26,9 +25,5 @@ class AOC_WC_i18n {
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);
-
 	}
-
-
-
 }

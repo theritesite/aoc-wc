@@ -16,7 +16,7 @@
  * Plugin Name:       Additional Order Costs for WooCommerce
  * Plugin URI:        https://www.theritesites.com/plugins/additional-order-costs
  * Description:       Whether it's an extra invoice, or a credit from a merchant related to an order. Sometimes you just need a couple extra cost fields for your reporting.
- * Version:           0.1.0
+ * Version:           1.0.1
  * Author:            TheRiteSites
  * Author URI:        https://www.theritesites.com
  * License:           GPL-2.0+
@@ -33,22 +33,20 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Current plugin version.
  */
-define( 'AOC_WC_VERSION', '0.1.0' );
-
-define( 'AOC_WC_UPDATER_URL', 'https://www.theritesites.com' );
-
-define( 'AOC_WC_ITEM_ID', 2375 );
+define( 'AOC_WC_VERSION', '1.0.1' );
 
 define( 'AOC_WC_LICENSE_PAGE', 'the_rite_plugins_settings' );
 
-define( 'AOC_WC_ITEM_NAME', 'Additional Order Costs for WooCommerce' );
-
-define( 'AOC_WC_LICENSE_KEY', 'additional_order_costs_for_woocommerce_license_key' );
-
-define( 'AOC_WC_LICENSE_STATUS', 'additional_order_costs_for_woocommerce_license_status' );
-
 if ( file_exists( __DIR__ . '/cmb2/init.php' ) ) {
 	require_once __DIR__ . '/cmb2/init.php';
+}
+
+if ( file_exists( __DIR__ . '/includes/class-logger.php' ) ) {
+	require_once __DIR__ . '/includes/class-logger.php';
+}
+
+if ( ! function_exists( 'is_woocommerce_active' ) ) {
+	require_once( 'woo-includes/woo-functions.php' );
 }
 
 /**
@@ -77,53 +75,6 @@ register_deactivation_hook( __FILE__, 'deactivate_aoc_wc' );
  * admin-specific hooks, and public-facing site hooks.
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-aoc-wc.php';
-
-
-/**
- * Inits updater class to talk to https://www.theritesites.com for updates
- * 
- * @since 1.0.0
- */
-function trs_aoc_wc_update_check() {
-
-	if ( ! class_exists( 'AOC_WC_Settings' ) ) {
-		// load our custom updater
-		include( plugin_dir_path( __FILE__ ) . '/includes/class-aoc-wc-settings.php' );
-	}
-
-	if ( ! class_exists( 'AOC_WC_Plugin_Updater' ) ) {
-		// load our custom updater
-		include( plugin_dir_path( __FILE__ ) . '/includes/class-aoc-wc-plugin-updater.php' );
-	}
-
-	if ( class_exists( 'AOC_WC_Settings' ) ) {
-		$license_key = AOC_WC_Settings::get_value(AOC_WC_LICENSE_KEY);
-	}
-	
-	else {
-		$opts = trim(get_option('the_rite_plugins_settings', false));
-
-		$key = AOC_WC_LICENSE_KEY;
-		if ( is_array( $opts ) && array_key_exists( $key, $opts ) && false !== $opts[ $key ] ) {
-			$license_key = $opts[ $key ];
-		}
-	}
-	
-	if ( ! class_exists( 'AOC_WC_Plugin_Updater' ) ) {
-		return;
-	}
-
-	$plugin_updater = new AOC_WC_Plugin_Updater( AOC_WC_UPDATER_URL, __FILE__, array(
-						'version'	=> AOC_WC_VERSION,
-						'license'	=> $license_key,
-						'item_id'	=> AOC_WC_ITEM_ID,
-						'author'	=> 'TheRiteSites',
-						'url'		=> home_url()
-			)
-	);
-
-}
-add_action( 'plugins_loaded', 'trs_aoc_wc_update_check');
 
 /**
  * Add action links like settings and documentation

@@ -57,30 +57,41 @@ class AOC_WC_AJAX {
 
         if ( isset( $_POST['post_id'] ) && isset( $_POST['aoc'] ) && isset( $_POST['security'] ) ) {
             try {
-                $order_id 	  = intval( sanitize_text_field( $_POST['post_id'] ) );
-				$cost_data_agg = ( $_POST['aoc'] );
-				$new_cost_data = array();
+                if ( wp_verify_nonce( $_POST['security'], 'wp_rest' ) ) {
+                    $new_cost_data = array();
+                    $order_id 	   = intval( sanitize_text_field( $_POST['post_id'] ) );
 
-				foreach ( $cost_data_agg as $key => $cost_data ) {
-					if ( isset( $cost_data['label'] ) && isset( $cost_data['cost'] ) ) {
-						$new_cost_data[] = array(
-								'label' => sanitize_text_field( $cost_data['label'] ),
-								'cost'	=> floatval( sanitize_text_field( $cost_data['cost'] ) ),
-						);
-					}
-				}
-				
-				if ( true === is_int( $order_id ) && 0 < $order_id ) {
-					$order = wc_get_order( $order_id );
-					if ( AOC_WC_DEBUG || WP_DEBUG ) {
-						error_log( wc_print_r( $new_cost_data, true ) );
-					}
+                    // This is reading in an array, sanitize later.
+                    $cost_data_agg = $_POST['aoc'];
+                    
+                    foreach ( $cost_data_agg as $key => $cost_data ) {
+                        if ( isset( $cost_data['label'] ) && isset( $cost_data['cost'] ) ) {
+                            $label = sanitize_text_field( $cost_data['label'] );
+                            $cost = floatval( sanitize_text_field( $cost_data['cost'] ) );
+                            if ( is_string( $label ) && is_float( $cost ) ) {
+                                $new_cost_data[] = array(
+                                        'label' => $label,
+                                        'cost'	=> $cost,
+                                );
+                            }
+                        }
+                    }
+                    
+                    if ( true === is_int( $order_id ) && 0 < $order_id ) {
+                        $order = wc_get_order( $order_id );
+                        if ( AOC_WC_DEBUG || WP_DEBUG ) {
+                            AOC_WC_Logger::add_debug( wc_print_r( $new_cost_data, true ) );
+                        }
 
-					$order->update_meta_data( '_aoc_wc_additional_costs', $new_cost_data );
-					$order_ret = $order->save();
+                        $order->update_meta_data( '_aoc_wc_additional_costs', $new_cost_data );
+                        $order_ret = $order->save();
 
-					$data['payload'] = array( 'order' => $order_ret, 'cost_data' => $new_cost_data );
-				}
+                        $data['payload'] = array( 'order' => $order_ret, 'cost_data' => $new_cost_data );
+                    }
+                }
+                else {
+                    return new WP_Error( 'save_additional_costs_error', 'Validation failed.', array( 'status' => 500 ) );
+                }
 
             } catch ( Exception $e ) {
                 return new WP_Error('add_additional_costs_error', $e->getMessage(), array( 'status' => 500 ) );
@@ -88,9 +99,14 @@ class AOC_WC_AJAX {
         }
         else {
             if ( true === WP_DEBUG || true === AOC_WC_DEBUG ) {
-                error_log( 'order id: ' . $_POST['post_id'] . ' aoc: ' .  wc_print_r( $_POST['aoc'], true ) );
+				if ( isset( $_POST['post_id'] ) ) {
+					AOC_WC_Logger::add_debug( 'order id: ' . sanitize_text_field( $_POST['post_id'] ) );
+				}
+				if ( isset( $_POST['aoc'] ) ) {
+					AOC_WC_Logger::add_debug( 'additional order costs: ' . wc_print_r( array_map( 'wp_kses_data', $_POST['aoc'] ), true ) );
+				}
             }
-            $data['error'] = "no orders with additional cost fields received";
+            $data['error'] = __( 'no orders with additional cost fields received', 'additional-order-costs-for-woocommerce' );
         }
         wc_get_notices( array() );
         wc_print_notices();
@@ -101,175 +117,6 @@ class AOC_WC_AJAX {
 
         wp_die();
     }
-
-    /**
-	 * Catches activation button press and attempts to activate the license for this plugin.
-	 * 
-	 * @since
-	 */
-	public static function aoc_wc_maybe_activate_callback() {
-		
-		if ( isset( $_POST['action'] ) && isset( $_POST['key'] ) ) {
-
-			if ( ! check_admin_referer( 'aoc_wc_nonce', 'security' ) )
-				return wp_send_json_error( array( 'error' => 'nonce mismatch' ) );
-			
-			$license = get_option( AOC_WC_LICENSE_KEY );
-			if ( isset( $_POST[AOC_WC_LICENSE_KEY] ) && ( $license != $_POST[AOC_WC_LICENSE_KEY] ) ) {
-				$license = $_POST[AOC_WC_LICENSE_KEY];
-
-				// Saves license value to metabox if activate is pressed
-				update_option( AOC_WC_LICENSE_KEY, $license );
-			}
-			
-			$api_params = array(
-				'edd_action' => 'activate_license',
-				'license'    => $license,
-				'item_name'  => urlencode( AOC_WC_ITEM_NAME ), // the name of our product in EDD
-				'url'        => home_url()
-			);
-			
-			// Call the custom API.
-			$response = wp_remote_post( AOC_WC_UPDATER_URL, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-	
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-	
-				if ( is_wp_error( $response ) ) {
-					$message = $response->get_error_message();
-				} else {
-					$message = __( 'An error occurred, please try again.' );
-				}
-	
-			} else {
-	
-				$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-	
-				if ( false === $license_data->success ) {
-	
-					switch( $license_data->error ) {
-	
-						case 'expired' :
-	
-							$message = sprintf(
-								__( 'Your license key expired on %s.' ),
-								date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) )
-							);
-							break;
-	
-						case 'disabled' :
-						case 'revoked' :
-	
-							$message = __( 'Your license key has been disabled.' );
-							break;
-	
-						case 'missing' :
-	
-							$message = __( 'Invalid license.' );
-							break;
-	
-						case 'invalid' :
-						case 'site_inactive' :
-	
-							$message = __( 'Your license is not active for this URL.' );
-							break;
-	
-						case 'item_name_mismatch' :
-	
-							$message = sprintf( __( 'This appears to be an invalid license key for %s.' ), AOC_WC_ITEM_NAME );
-							break;
-	
-						case 'no_activations_left':
-	
-							$message = __( 'Your license key has reached its activation limit.' );
-							break;
-	
-						default :
-	
-							$message = __( 'An error occurred, please try again.' );
-							break;
-					}
-	
-				}
-	
-			}
-	
-			// Check if anything passed on a message constituting a failure
-			if ( ! empty( $message ) ) {
-	
-				wp_send_json_success( array( 'message' => $message ) );
-				exit();
-			}
-	
-			// $license_data->license will be either "valid" or "invalid"
-			update_option( AOC_WC_LICENSE_STATUS, $license_data->license );
-			wp_send_json_success( array( 'message' => __( 'License key accepted, and sent for verification. Your premium version should now be active!' ) ) );
-			exit();
-		}
-	}
-
-	/**
-	 * Deactivates the plugin license
-	 * 
-	 * @since
-	 */
-	public static function aoc_wc_maybe_deactivate_callback() {
-		if( isset($_POST['action']) && isset($_POST['key']) ) {
-			if ( AOC_WC_DEBUG || WP_DEBUG ) {
-				error_log( "this is request['security'] " . $_REQUEST['security'] );
-			}
-			
-			if( ! check_admin_referer( 'aoc_wc_nonce', 'security' ) )
-				return wp_send_json_success( array( 'error' => 'nonce mismatch' ) );
-			
-			$license = get_option( AOC_WC_LICENSE_KEY );
-			
-			$api_params = array(
-				'edd_action' => 'deactivate_license',
-				'license'    => $license,
-				'item_name'  => urlencode( AOC_WC_ITEM_NAME ), // the name of our product in EDD
-				'url'        => home_url()
-			);
-
-			
-			// Call the custom API.
-			$response = wp_remote_post( AOC_WC_UPDATER_URL, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-	
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-	
-				if ( is_wp_error( $response ) ) {
-					$message = $response->get_error_message();
-				} else {
-					$message = __( 'An error occurred, please try again.' );
-				}
-				
-				$base_url = admin_url( 'options-general.php?page=' . AOC_WC_LICENSE_PAGE );
-				$redirect = add_query_arg( array( 'aoc_wc_activation' => 'false', 'message' => urlencode( $message ) ), $base_url );
-	
-				wp_redirect( $redirect );
-				exit();
-			}
-			
-			// decode the license data
-			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-			
-			if( $license_data->license == 'failed' ) {
-				$message = __( 'An error occurred, that license does not seem valid, please try again.' );
-				
-                wp_send_json_success( array( 'message' => $message ) );
-				exit();
-			}
-	
-			// $license_data->license will be either "deactivated" or "failed"
-			if( $license_data->license == 'deactivated' ) {
-				delete_option( AOC_WC_LICENSE_STATUS );
-			}
-	
-			wp_send_json_success( array( 'message' => __( 'License deactivated.' ) ) );
-			exit();
-		}
-	}
 }
 
 AOC_WC_AJAX::init();

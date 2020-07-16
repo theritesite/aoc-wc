@@ -69,31 +69,37 @@ jQuery(document).ready(function( $ ) {
 		var costs  = $('input[name="aoc_cost[]"]');
 		var index = 0;
 		var additional_cost_data = [];
+		var error_at = [];
 
 		labels.each( function() { 
 			var aVal = $(this).val();
-			if ( ! aVal.trim() ) {
-				if ( costs[index].value ) {
+			console.log( aVal );
+			if ( !aVal ) {
+				if ( costs[index].value > 0 || costs[index].value < 0 ) {
 					// Trigger error
-				}
-				else {
-					// Skip
-				}
+					error_at.push( { 'index': index, 'code': 10 } );
+				} // Skip else as that would be blanks on both anyways.
 			}
-			else if ( aVal.trim() ) {
-				if ( !costs[index].value ) {
+			else if ( aVal ) {
+				if ( costs[index].value == 0 ) {
 					// Trigger error
+					error_at.push( { 'index': index, 'code': 11 } );
 				}
 				else {
 					// Need to store this
-					additional_cost_data.push({ 'label': aVal, 'cost': costs[index].value });
+					additional_cost_data.push( { 'label': aVal, 'cost': costs[index].value } );
 				}
 			}
 			index++;
-		} )
+		} );
 
 		if ( debug )
 			console.log( additional_cost_data );
+
+		if ( error_at.length > 0 ) {
+			// TODO: need to make error trigger that will go through and highlight the errored inputs with correct message.
+			return;
+		}
 
 		// $( e.target.id ).toggle(true);
 		let indexer = $(this).data( 'aoc' );
@@ -109,7 +115,7 @@ jQuery(document).ready(function( $ ) {
 		};
 		
 		$.post( ajaxurl, data, function(response)  {
-			if( debug )
+			if ( debug )
 				console.log("Additional Costs sent!");
 			$(this).addClass('loading');
 			$(this).attr('disabled', true);
@@ -120,11 +126,11 @@ jQuery(document).ready(function( $ ) {
 			
 		})
 		.fail(function() {
-			if( debug )
+			if ( debug )
 				console.log("failed");
 		})
 		.success(function(response) {
-			if( debug )
+			if ( debug )
 				console.log("success");
 			
 			let additional_labels = $('span[id="aoc-label-view[]"]');
@@ -164,5 +170,4 @@ jQuery(document).ready(function( $ ) {
 			
 		});
 	});
-
 });

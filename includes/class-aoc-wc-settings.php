@@ -69,18 +69,8 @@ class AOC_WC_Settings {
 	public function hooks() {
 
 		// Hook in our actions to the admin.
-		
 		add_action( 'cmb2_admin_init', array( $this, 'add_options_page_metabox' ) );
 		
-		// Activate plugin license logic
-		add_action( 'admin_init', array( $this, 'maybe_activate_aoc_wc_license' ) );
-		
-		// Deactivate plugin license logic
-		add_action( 'admin_init', array( $this, 'maybe_deactivate_aoc_wc_license' ) );
-		
-		// Display admin notices for license screen
-		add_action( 'admin_notices', array( $this, 'handle_admin_notices' ) );
-
 	}
 
 	/**
@@ -90,34 +80,6 @@ class AOC_WC_Settings {
 	 */
 	public function add_options_page_metabox() {
 
-		$args = array(
-			'id'           => 'the_rite_plugins_settings_page',
-			'title'        => 'The Rite Plugins Settings',
-			'object_types' => array( 'options-page' ),
-			'option_key'   => 'the_rite_plugins_settings',
-			'tab_group'    => 'the_rite_plugins_settings',
-			'parent_slug'  => 'options-general.php', // Make options page a submenu item of the themes menu.
-			'tab_title'    => 'Licenses',
-		);
-		// 'tab_group' property is supported in > 2.4.0.
-		if ( version_compare( CMB2_VERSION, '2.4.0' ) ) {
-			$args['display_cb'] = array( $this, 'aoc_wc_options_display_with_tabs' );
-		}
-		$main_options = new_cmb2_box( $args );
-		/**
-		 * Options fields ids only need
-		 * to be unique within this box.
-		 * Prefix is not needed.
-		 */
-		$main_options->add_field( array(
-			'name'    => __( 'Additional Order Costs for WooCommerce License Key', 'additional-order-costs-for-woocommerce' ),
-			'desc'    => __( 'Enter your license key', 'additional-order-costs-for-woocommerce' ),
-			'id'      => AOC_WC_LICENSE_KEY, // No prefix needed.
-			'type'    => 'text',
-			'default' => '',
-			'after'   => array( $this, 'add_trp_activate_button'),
-		) );
-		
 		/**
 		 * Registers secondary options page, and set main item as parent.
 		 * TODO: Add new settings tab for Net Profit specific settings
@@ -168,237 +130,9 @@ class AOC_WC_Settings {
 	}
 
 	/**
-	 * Renders an html button that runs a javascript action to activate the license
-	 * 
-	 * @since 1.2.0
-	 */
-	public function add_trp_activate_button() {
-		if( !is_admin() )
-			return;
-		$license_status = get_option( AOC_WC_LICENSE_STATUS );
-		if( $license_status !== 'valid' ) {
-			echo wp_nonce_field( 'trs_activate_aoc_wc', 'additional_order_costs_for_woocommerce_nonce' );
-			echo '<input type="submit" class="button-secondary" id="aoc_wc_activate" name="aoc_wc_activate" value="Activate" />';
-		}
-		else {
-			echo wp_nonce_field( 'trs_deactivate_aoc_wc', 'additional_order_costs_for_woocommerce_nonce' );
-			echo '<input type="submit" class="button-secondary" id="aoc_wc_deactivate" name="aoc_wc_deactivate" value="Deactivate" />';
-			
-		}
-	}
-
-	/**
-	 * Catches activation button press and attempts to activate the license for this plugin.
-	 * 
-	 * @since 1.2.0
-	 */
-	public function maybe_activate_aoc_wc_license() {
-		
-		if( isset($_POST['aoc_wc_activate']) ) {
-			
-			if( ! check_admin_referer( 'trs_activate_aoc_wc', 'additional_order_costs_for_woocommerce_nonce' ) )
-				return;
-			
-			$license = $this->get_value( AOC_WC_LICENSE_KEY );
-
-			if( isset($_POST[AOC_WC_LICENSE_KEY]) && ($license != $_POST[AOC_WC_LICENSE_KEY]) ){
-				$license = $_POST[AOC_WC_LICENSE_KEY];
-
-				// Saves license value to metabox if activate is pressed
-				$options = $this->get_value('all');
-				$options[AOC_WC_LICENSE_KEY] = $license;
-				update_option( 'the_rite_plugins_settings', $options );
-			}
-
-			// wp_die( $license );
-			
-			$api_params = array(
-				'edd_action' => 'activate_license',
-				'license'    => $license,
-				'item_name'  => urlencode( AOC_WC_ITEM_NAME ), // the name of our product in EDD
-				'url'        => home_url()
-			);
-			
-			
-			// Call the custom API.
-			$response = wp_remote_post( AOC_WC_UPDATER_URL, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-	
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-	
-				if ( is_wp_error( $response ) ) {
-					$message = $response->get_error_message();
-				} else {
-					$message = __( 'An error occurred, please try again.' );
-				}
-	
-			} else {
-	
-				$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-	
-				if ( false === $license_data->success ) {
-	
-					switch( $license_data->error ) {
-	
-						case 'expired' :
-	
-							$message = sprintf(
-								__( 'Your license key expired on %s.' ),
-								date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) )
-							);
-							break;
-	
-						case 'disabled' :
-						case 'revoked' :
-	
-							$message = __( 'Your license key has been disabled.' );
-							break;
-	
-						case 'missing' :
-	
-							$message = __( 'Invalid license.' );
-							break;
-	
-						case 'invalid' :
-						case 'site_inactive' :
-	
-							$message = __( 'Your license is not active for this URL.' );
-							break;
-	
-						case 'item_name_mismatch' :
-	
-							$message = sprintf( __( 'This appears to be an invalid license key for %s.' ), AOC_WC_ITEM_NAME );
-							break;
-	
-						case 'no_activations_left':
-	
-							$message = __( 'Your license key has reached its activation limit.' );
-							break;
-	
-						default :
-	
-							$message = __( 'An error occurred, please try again.' );
-							break;
-					}
-	
-				}
-	
-			}
-	
-			// Check if anything passed on a message constituting a failure
-			if ( ! empty( $message ) ) {
-				$base_url = admin_url( 'options-general.php?page=' . AOC_WC_LICENSE_PAGE );
-				$redirect = add_query_arg( array( 'aoc_wc_activation' => 'false', 'message' => urlencode( $message ) ), $base_url );
-	
-				wp_redirect( $redirect );
-				exit();
-			}
-	
-			// $license_data->license will be either "valid" or "invalid"
-	
-			update_option( AOC_WC_LICENSE_STATUS, $license_data->license );
-			wp_redirect( admin_url( 'options-general.php?page=' . AOC_WC_LICENSE_PAGE ) );
-			exit();
-		}
-	}
-
-	/**
-	 * Deactivates the plugin license
-	 * 
-	 * @since 1.2.0
-	 */
-	public function maybe_deactivate_aoc_wc_license() {
-		if( isset($_POST['aoc_wc_deactivate']) ) {
-			
-			if( ! check_admin_referer( 'trs_deactivate_aoc_wc', 'additional_order_costs_for_woocommerce_nonce' ) )
-				return;
-			
-			$license = $this->get_value( AOC_WC_LICENSE_KEY );
-			
-			$api_params = array(
-				'edd_action' => 'deactivate_license',
-				'license'    => $license,
-				'item_name'  => urlencode( AOC_WC_ITEM_NAME ), // the name of our product in EDD
-				'url'        => home_url()
-			);
-			
-			
-			// Call the custom API.
-			$response = wp_remote_post( AOC_WC_UPDATER_URL, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-	
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-	
-				if ( is_wp_error( $response ) ) {
-					$message = $response->get_error_message();
-				} else {
-					$message = __( 'An error occurred, please try again.' );
-				}
-				
-				$base_url = admin_url( 'options-general.php?page=' . AOC_WC_LICENSE_PAGE );
-				$redirect = add_query_arg( array( 'aoc_wc_activation' => 'false', 'message' => urlencode( $message ) ), $base_url );
-	
-				wp_redirect( $redirect );
-				exit();
-			}
-			
-			// decode the license data
-			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-	
-			if( $license_data->license == 'failed' ) {
-				$message = __( 'An error occurred, that license does not seem valid, please try again.' );
-				
-				$base_url = admin_url( 'options-general.php?page=' . AOC_WC_LICENSE_PAGE );
-				$redirect = add_query_arg( array( 'aoc_wc_activation' => 'false', 'message' => urlencode( $message ) ), $base_url );
-	
-				wp_redirect( $redirect );
-				exit();
-			}
-
-			// $license_data->license will be either "deactivated" or "failed"
-			if( $license_data->license == 'deactivated' ) {
-				delete_option( AOC_WC_LICENSE_STATUS );
-			}
-	
-			wp_redirect( admin_url( 'options-general.php?page=' . AOC_WC_LICENSE_PAGE ) );
-			exit();
-		}
-	}
-
-	/**
-	 * Catch and display admin error messages specifically for plugin licensing
-	 * 
-	 * @since 1.0.0
-	 */
-	public function handle_admin_notices() {
-		if ( isset( $_GET['aoc_wc_activation'] ) && ! empty( $_GET['message'] ) ) {
-
-			switch( $_GET['aoc_wc_activation'] ) {
-	
-				case 'false':
-					$message = urldecode( $_GET['message'] );
-					?>
-					<div class="error">
-						<p><?php echo $message; ?></p>
-					</div>
-					<?php
-					break;
-	
-				case 'true':
-					
-				default:
-					// Developers can put a custom success message here for when activation is successful if they way.
-					break;
-	
-			}
-			remove_query_arg( 'aoc_wc_activation' );
-		}
-	}
-
-	/**
 	 * Initiates tab driven settings page
 	 * 
-	 * @since 1.3.3
+	 * @since 1.0.0
 	 */
 	public function aoc_wc_options_display_with_tabs( $cmb_options ) {
 		$tabs = $this->aoc_wc_options_page_tabs( $cmb_options );
@@ -424,7 +158,7 @@ class AOC_WC_Settings {
 	/**
 	 * Helper function to get tabs for settings tabular view
 	 * 
-	 * @since 1.2.0
+	 * @since 1.0.0
 	 */
 	public function aoc_wc_options_page_tabs( $cmb_options ) {
 		$tab_group = $cmb_options->cmb->prop( 'tab_group' );

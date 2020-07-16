@@ -114,25 +114,25 @@ class AOC_WC_Admin {
 			if ( ! empty( $new_default ) && (int) $new_default > 0 ) {
 				$default = (int) $new_default;
 				if ( AOC_WC_DEBUG || WP_DEBUG ) {
-					error_log( "Default overriden. the new default is: " . $default );
+					AOC_WC_Logger::add_debug( 'Default overriden. the new default is: ' . $default );
 				}
 			} 
 		}
 		$order = wc_get_order( $order_id );
 		$additional_costs = maybe_unserialize( $order->get_meta( '_aoc_wc_additional_costs' ) );
 		if ( AOC_WC_DEBUG || WP_DEBUG ) {
-			error_log( wc_print_r( $additional_costs, true ) );
+			AOC_WC_Logger::add_debug( wc_print_r( $additional_costs, true ) );
 		}
 		?>
 			<tr>
 				<td colspan="2" class="label">
-					Additional Costs:
+					<?php _e( 'Additional Costs:', 'additional-order-costs-for-woocommerce' ) ?>
 				</td>
 				<td colspan="2">
-					<a data-orderid="<?php esc_attr_e( $order_id ); ?>" class="edit-additional-cost">edit</a>
+					<a data-orderid="<?php esc_attr_e( $order_id ); ?>" class="edit-additional-cost"><?php _e( 'edit', 'additional-order-costs-for-woocommerce' ) ?></a>
 					<div class="edit-aoc-buttons" style="display: none;">
-						<button class="aoc-cancel-button button" type="button">Cancel</button>
-						<button class="aoc-save-button button button-primary" type="button">Save</button>
+						<button class="aoc-cancel-button button" type="button"><?php esc_html( _e( 'Cancel', 'additional-order-costs-for-woocommerce' ) ) ?></button>
+						<button class="aoc-save-button button button-primary" type="button"><?php esc_html( _e( 'Save', 'additional-order-costs-for-woocommerce' ) ) ?></button>
 					</div>
 				</td>
 			</tr>
@@ -159,7 +159,7 @@ class AOC_WC_Admin {
 						<span id="aoc-label-view[]" class="additional-cost-label additional-cost-view "><?php esc_html_e( $current_label ) ?></span>
 					</td>
 					<td class="total additional-cost">
-						<span id="aoc-cost-view[]" class="additional-cost-value additional-cost-view"><?php echo wc_price( (float) $current_cost ) ?></span>
+						<span id="aoc-cost-view[]" class="additional-cost-value additional-cost-view"><?php esc_html_e( wc_price( floatval( $current_cost ) ) ) ?></span>
 						<input name="aoc_cost[]" style="display:none; width: 5em;" class="additional-cost-edit additional-cost-value additional-cost-edit-<?php esc_attr_e( $i ) ?>" type="number" step="0.01" value="<?php esc_attr_e( round( floatval( $current_cost ), 2 ) ) ?>" />
 					</td>
 				</tr>
