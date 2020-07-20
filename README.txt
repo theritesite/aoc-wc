@@ -39,6 +39,15 @@ An answer to that question.
 
 == Changelog ==
 
+= 1.0.1 =
+
+* New: Added is_woocommerce_active check for plugin functionality
+* Change: Instead of writing to debug.log we are now utilizing WooCommerce logging to save to a more accessible area
+* Tweak: Removed unused code
+* Tweak: Completed sanitization of passed in data
+* Tweak: Completed escaping of passed in data
+* Tweak: Completed the i18n display text translation
+
 = 1.0.0 =
 
 * Initial release

@@ -98,7 +98,6 @@ class AOC_WC_Loader {
 		);
 
 		return $hooks;
-
 	}
 
 	/**
@@ -115,7 +114,5 @@ class AOC_WC_Loader {
 		foreach ( $this->actions as $hook ) {
 			add_action( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
 		}
-
 	}
-
 }

@@ -113,7 +113,6 @@ class AOC_WC {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aoc-wc-admin.php';
 
 		$this->loader = new AOC_WC_Loader();
-
 	}
 
 	/**
@@ -130,7 +129,6 @@ class AOC_WC {
 		$plugin_i18n = new AOC_WC_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
 	}
 
 	/**
