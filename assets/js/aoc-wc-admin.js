@@ -164,10 +164,12 @@ jQuery(document).ready(function( $ ) {
 
 			additional_labels.each( function() {
 				if ( undefined !== response.payload.cost_data[index] ) {
+					console.log( "cost was saved, adding the html and toggling on: this is the label" );
 					$(this).toggle(true);
 					$(this).html( response.payload.cost_data[index].label );
 				}
 				else {
+					console.log( "this is in the else" );
 					$(this).toggle(false);
 				}
 				index++;
@@ -176,12 +178,14 @@ jQuery(document).ready(function( $ ) {
 			index = 0;
 			additional_costs.each( function() {
 				if ( undefined !== response.payload.cost_data[index] ) {
+					console.log( "cost was saved, adding the html and toggling on: this is the cost" );
 					$(this).toggle(true);
 					$(this).html(
 						'<span class="woocommerce-Price-currencySymbol">' + AOCWC.currency + '</span>' + response.payload.cost_data[index].cost
 					);
 				}
 				else {
+					console.log( "this is in the second else" );
 					$(this).toggle(false);
 				}
 				index++;

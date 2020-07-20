@@ -39,6 +39,10 @@ An answer to that question.
 
 == Changelog ==
 
+= 1.0.2 =
+
+* Repository tweak: removed the updater file from git
+
 = 1.0.1 =
 
 * New: Added is_woocommerce_active check for plugin functionality
