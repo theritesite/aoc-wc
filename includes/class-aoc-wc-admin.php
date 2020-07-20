@@ -47,6 +47,17 @@ class AOC_WC_Admin {
 	}
 
 	/**
+	 * Register the stylesheets for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_styles() {
+
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __DIR__ ) . 'assets/css/aoc-wc-admin.css', array(), $this->version, 'all' );
+
+	}
+
+	/**
 	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0
@@ -112,7 +123,7 @@ class AOC_WC_Admin {
 					<?php _e( 'Additional Costs:', 'additional-order-costs-for-woocommerce' ) ?>
 				</td>
 				<td colspan="2">
-					<a data-orderid="<?php esc_attr_e( $order_id ); ?>" class="edit-additional-cost"><?php _e( 'edit', 'additional-order-costs-for-woocommerce' ) ?></a>
+					<a data-orderid="<?php esc_attr_e( $order_id ); ?>" class="edit-aoc"><?php _e( 'edit', 'additional-order-costs-for-woocommerce' ) ?></a>
 					<div class="edit-aoc-buttons" style="display: none;">
 						<button class="aoc-cancel-button button" type="button"><?php esc_html( _e( 'Cancel', 'additional-order-costs-for-woocommerce' ) ) ?></button>
 						<button class="aoc-save-button button button-primary" type="button"><?php esc_html( _e( 'Save', 'additional-order-costs-for-woocommerce' ) ) ?></button>
@@ -136,14 +147,14 @@ class AOC_WC_Admin {
 
 
 			?>
-				<tr class="additional-cost-row" style="<?php esc_attr_e( $hidden ) ?>" >
+				<tr class="aoc-row" style="<?php esc_attr_e( $hidden ) ?>" >
 					<td colspan="2" class="label">
-						<input name="aoc_label[]" placeholder="Note for cost..." class="additional-cost-edit additional-cost-label additional-cost-edit-<?php esc_attr_e( $i ) ?>" type="text" value="<?php esc_attr_e( $current_label ) ?>" style="display:none;" />
-						<span id="aoc-label-view[]" class="additional-cost-label additional-cost-view "><?php esc_html_e( $current_label ) ?></span>
+						<input id="aoc_label_<?php esc_attr_e( $i ); ?>" name="aoc_label[]" placeholder="Note for cost..." class="aoc-edit aoc-label aoc-edit-<?php esc_attr_e( $i ) ?>" type="text" value="<?php esc_attr_e( $current_label ) ?>" style="display:none;" />
+						<span id="aoc-label-view[<?php esc_attr_e( $i ); ?>]" class="aoc-label aoc-view "><?php esc_html_e( $current_label ) ?></span>
 					</td>
-					<td class="total additional-cost">
-						<span id="aoc-cost-view[]" class="additional-cost-value additional-cost-view"><?php echo wc_price( floatval( esc_html( $current_cost ) ) ) ?></span>
-						<input name="aoc_cost[]" style="display:none; width: 5em;" class="additional-cost-edit additional-cost-value additional-cost-edit-<?php esc_attr_e( $i ) ?>" type="number" step="0.01" value="<?php echo round( floatval( esc_attr( $current_cost ) ), 2 ) ?>" />
+					<td class="total aoc">
+						<span id="aoc-cost-view[<?php esc_attr_e( $i ); ?>]" class="aoc-value aoc-view"><?php echo wc_price( floatval( esc_html( $current_cost ) ) ) ?></span>
+						<input id="aoc_cost_<?php esc_attr_e( $i ); ?>" name="aoc_cost[]" style="display:none; width: 5em;" class="aoc-edit aoc-value aoc-edit-<?php esc_attr_e( $i ) ?>" type="number" step="0.01" value="<?php echo round( floatval( esc_attr( $current_cost ) ), 2 ) ?>" />
 					</td>
 				</tr>
 			<?php

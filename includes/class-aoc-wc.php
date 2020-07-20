@@ -142,6 +142,7 @@ class AOC_WC {
 
 		$plugin_admin = new AOC_WC_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		$this->plugin_settings = new AOC_WC_Settings( $this );
