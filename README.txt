@@ -3,7 +3,8 @@ Contributors: theritesites
 Donate link: https://www.theritesites.com
 Tags: Order costs, WooCommerce costs, Additional costs, Reporting
 Requires at least: 4.0
-Tested up to: 5.3.0
+Requires PHP: 5.6
+Tested up to: 5.4
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -20,6 +21,22 @@ In the future we will be looking at making these a repeatable field rather than 
 Once you start tracking the additional order costs you associate, you’ll want to use our [WooCommerce Net Profit](https://www.theritesites.com/plugins/woocommerce-net-profit) plugin that will give you beautiful, functional reports to fully analyze your profitability.
 This also pairs well with our other cost tracking plguin, [WooCommerce Cost of Shipping](https://wordpress.org/plugins/woo-cost-of-shipping/).
 While using the WooCommerce Net Profit plugin, you will individually be able to track Additional Costs, Cost of Shipping, and Cost of Goods. The Net Profit plugin has recently been expanded to allow for custom costs to be associated from any other third party plugin as well, though coding is necessary.
+
+This plugin also serves as the first ever example of how to integrate with WooCommerce Net Profit in a dynamic fashion.
+WooCommerce Net Profit as of version 1.5 now has an active filter
+`add_filter( 'trs_wc_np_order_cost_extension', 'callback_function', 10, 1 )`
+How the filter is implemented can be found in additional-oprder-costs-for-woocommerce/includes/class-aoc-wc.php 
+The filter allows for a PHP array of objects to be modified. Each object in the array represents a plugin that needs to extend to a cost calculation. The key in the array should be the meta_key found in the database. The rest of the object should be structured as follows:
+`$array[$meta_key] = new StdClass();
+$array[$meta_key]->key = $meta_key;
+$array[$meta_key]->category = 'additional_costs'; // could be cost_of_goods, additional_costs, cost_of_shipping
+$array[$meta_key]->function = 'aoc_wc_calculate_addition_costs_on_order'; // This should be a callable non-class protected function.
+`
+
+The function listed above should be found in a file of similar structure to functions.php in themes. This function is called when doing data/reporting queries. The function is only applied to the individual meta keys value.
+For example: this plugin stores multiple order cost lines with associated labels. The "function" portion of the filter plucks out the important values and returns a singular non-scalar (non-complex) value. This value can then be subtracted from any other simple (float, integer, double) data format.
+
+
 
 
 == Installation ==
