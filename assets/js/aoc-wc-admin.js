@@ -79,6 +79,42 @@ jQuery(document).ready(function( $ ) {
 		$('.aoc-edit').toggle(false);
 		$('.aoc-view').toggle(true);
 
+		let additional_labels = $('span[id="aoc-label-view[]"]');
+		let additional_costs = $('span[id="aoc-cost-view[]"]');
+		let index = 0;
+
+		$('.aoc-edit').toggle(false);
+		$('.edit-aoc-buttons').toggle(false);
+		$('.edit-aoc').toggle(true);
+		console.log( "we are before the eaches" );
+
+		additional_labels.each( function() {
+			console.log( additional_costs[index].val );
+			if ( 0 != additional_costs[index].val && $(this).val() != 0 ) {
+				console.log( "cost was here needs displaying: label" );
+				$(this).toggle(true);
+			}
+			else {
+				console.log( "this is in the else" );
+				$(this).toggle(false);
+			}
+			index++;
+		});
+
+		index = 0;
+		additional_costs.each( function() {
+			console.log( additional_labels[index].val );
+			if ( 0 != additional_labels[index].val && $(this).val() != 0 ) {
+				console.log( "label was here needs displaying: cost" );
+				$(this).toggle(true);
+			}
+			else {
+				console.log( "this is in the second else" );
+				$(this).toggle(false);
+			}
+			index++;
+		});
+
 		if ( AOCWC.debug )
 			console.log('clicked cancel in the tooltip!');
 	}
@@ -161,6 +197,7 @@ jQuery(document).ready(function( $ ) {
 			$('.aoc-edit').toggle(false);
 			$('.edit-aoc-buttons').toggle(false);
 			$('.edit-aoc').toggle(true);
+			console.log( "we are before the eaches" );
 
 			additional_labels.each( function() {
 				if ( undefined !== response.payload.cost_data[index] ) {
@@ -174,6 +211,7 @@ jQuery(document).ready(function( $ ) {
 				}
 				index++;
 			});
+			console.log( window.wc.wcSettings.CURRENCY );
 
 			index = 0;
 			additional_costs.each( function() {
@@ -181,7 +219,7 @@ jQuery(document).ready(function( $ ) {
 					console.log( "cost was saved, adding the html and toggling on: this is the cost" );
 					$(this).toggle(true);
 					$(this).html(
-						'<span class="woocommerce-Price-currencySymbol">' + AOCWC.currency + '</span>' + response.payload.cost_data[index].cost
+						'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">' + AOCWC.currency + '</span>' + response.payload.cost_data[index].cost.toFixed(2) + '</span>'
 					);
 				}
 				else {

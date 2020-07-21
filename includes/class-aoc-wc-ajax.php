@@ -33,10 +33,6 @@ class AOC_WC_AJAX {
             if ( ! defined( 'AOC_WC_DOING_AJAX' ) ) {
                 define( 'AOC_WC_DOING_AJAX', true );
             }
-            if ( ! WP_DEBUG || ( WP_DEBUG && ! WP_DEBUG_DISPLAY ) ) {
-                @ini_set( 'display_errors', 0 );
-            }
-            $GLOBALS['wpdb']->hide_errors();
         }
     }
 
