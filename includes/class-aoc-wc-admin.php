@@ -150,10 +150,10 @@ class AOC_WC_Admin {
 				<tr class="aoc-row" style="<?php esc_attr_e( $hidden ) ?>" >
 					<td colspan="2" class="label">
 						<input id="aoc_label_<?php esc_attr_e( $i ); ?>" name="aoc_label[]" placeholder="Note for cost..." class="aoc-edit aoc-label aoc-edit-<?php esc_attr_e( $i ) ?>" type="text" value="<?php esc_attr_e( $current_label ) ?>" style="display:none;" />
-						<span id="aoc-label-view[<?php esc_attr_e( $i ); ?>]" class="aoc-label aoc-view "><?php esc_html_e( $current_label ) ?></span>
+						<span id="aoc-label-view[]" class="aoc-label aoc-view "><?php esc_html_e( $current_label ) ?></span>
 					</td>
 					<td class="total aoc">
-						<span id="aoc-cost-view[<?php esc_attr_e( $i ); ?>]" class="aoc-value aoc-view"><?php echo wc_price( floatval( esc_html( $current_cost ) ) ) ?></span>
+						<span id="aoc-cost-view[]" class="aoc-value aoc-view"><?php echo wc_price( floatval( esc_html( $current_cost ) ) ) ?></span>
 						<input id="aoc_cost_<?php esc_attr_e( $i ); ?>" name="aoc_cost[]" style="display:none; width: 5em;" class="aoc-edit aoc-value aoc-edit-<?php esc_attr_e( $i ) ?>" type="number" step="0.01" value="<?php echo round( floatval( esc_attr( $current_cost ) ), 2 ) ?>" />
 					</td>
 				</tr>

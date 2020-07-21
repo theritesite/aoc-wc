@@ -10,6 +10,6 @@ if ( ! class_exists( 'AOC_WC_Dependencies' ) )
  */
 if ( ! function_exists( 'is_woocommerce_active' ) ) {
 	function is_woocommerce_active() {
-		return WC_NP_Dependencies::woocommerce_active_check();
+		return AOC_WC_Dependencies::woocommerce_active_check();
 	}
 }
