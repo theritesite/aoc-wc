@@ -39,6 +39,11 @@ An answer to that question.
 
 == Changelog ==
 
+= 1.0.3 =
+
+* Tweak: Change CMB2 source from github to WordPress
+* New: Added in error highlighting and javascript validation for additional order costs on the WC Order page
+
 = 1.0.2 =
 
 * Repository tweak: removed the updater file from git
