@@ -41,7 +41,7 @@ const config = env => {
                     { from: path.resolve( __dirname, 'public' ) + '/**', to: buildFolder },
                     { from: path.resolve( __dirname, 'woo-includes' ) + '/**', to: buildFolder },
                     { from: path.resolve( __dirname, 'README.*' ), to: buildFolder },
-                    { from: path.resolve( __dirname, 'LICENSE.txt' ), to: buildFolder },
+                    { from: path.resolve( __dirname, 'LICENSE' ), to: buildFolder },
                     { from: path.resolve( __dirname, 'CHANGELOG.*' ), to: buildFolder },
                     { from: path.resolve( __dirname, '*.php' ), to: buildFolder },
                     /** Above is for zip folder. Below is for repositories. **/
@@ -53,7 +53,7 @@ const config = env => {
                     { from: path.resolve( __dirname, 'public' ) + '/**', to: endFolder },
                     { from: path.resolve( __dirname, 'woo-includes' ) + '/**', to: endFolder },
                     { from: path.resolve( __dirname, 'README.*' ), to: endFolder },
-                    { from: path.resolve( __dirname, 'LICENSE.txt' ), to: endFolder },
+                    { from: path.resolve( __dirname, 'LICENSE' ), to: endFolder },
                     { from: path.resolve( __dirname, 'CHANGELOG.*' ), to: endFolder },
                     { from: path.resolve( __dirname, '*.php' ), to: endFolder },
                 ], {
@@ -97,7 +97,7 @@ const config = env => {
                     { from: path.resolve( __dirname, 'public' ) + '/**', to: devFolder },
                     { from: path.resolve( __dirname, 'woo-includes' ) + '/**', to: devFolder },
                     { from: path.resolve( __dirname, 'README.*' ), to: devFolder },
-                    { from: path.resolve( __dirname, 'LICENSE.txt' ), to: devFolder },
+                    { from: path.resolve( __dirname, 'LICENSE' ), to: devFolder },
                     { from: path.resolve( __dirname, 'CHANGELOG.*' ), to: devFolder },
                     { from: path.resolve( __dirname, '*.php' ), to: devFolder }
                 ], {
