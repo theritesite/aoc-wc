@@ -27,6 +27,11 @@ const config = env => {
         devFolder = '/Users/parker/sites/localwptest/wp-content/plugins/' + pluginSlug; // Mac
         endPath = '/Users/parker/Documents/theritesites/completed_plugins'; // Mac
     }
+    if ( env.LOC === "m1" ) {
+		devFolder = '/Users/parkermathewson/mac-sites/wp56tester/wp-content/plugins/' + pluginSlug; // M1
+		endPath = '/Users/parkermathewson/Library/Mobile\ Documents/com~apple~CloudDocs/theritesites/completed_pluginsv2'; // M1
+		buildPath = '/Users/parkermathewson/theritesites/completed_pluginsv2'; // M1
+	}
 
     var endFolder = endPath + '/' + pluginSlug;
 

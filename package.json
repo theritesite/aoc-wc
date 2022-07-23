@@ -12,7 +12,9 @@
 		"start-c": "webpack --mode=development --env.NODE_ENV=development --env.LOC=corsair --watch",
 		"start-m": "webpack --mode=development --env.NODE_ENV=development --env.LOC=mac --watch",
 		"build-c": "webpack --mode=production --env.NODE_ENV=production --env.LOC=corsair",
-		"build-m": "webpack --mode=production --env.NODE_ENV=production --env.LOC=mac"
+		"build-m": "webpack --mode=production --env.NODE_ENV=production --env.LOC=mac",
+		"start-m1": "webpack --mode=development --env.NODE_ENV=development --env.LOC=m1 --watch",
+		"build-m1": "webpack --mode=production --env.NODE_ENV=production --env.LOC=m1"
 	},
 	"devDependencies": {
 		"autoprefixer": "^9.8.4",
